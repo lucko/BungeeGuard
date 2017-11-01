@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.lucko</groupId>
+    <artifactId>bungeeguard</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>bungeeguard-proxy</module>
+        <module>bungeeguard-backend</module>
+    </modules>
+
+    <name>BungeeGuard</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <compiler.version>3.6.1</compiler.version>
+        <shade.version>3.0.0</shade.version>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>luck-snapshots</id>
+            <url>https://nexus.lucko.me/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>luck-releases</id>
+            <url>https://nexus.lucko.me/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>luck-repo</id>
+            <url>https://repo.lucko.me/</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>destroystokyo-repo</id>
+            <url>https://repo.destroystokyo.com/repository/maven-public//</url>
+        </repository>
+    </repositories>
+
+</project>
