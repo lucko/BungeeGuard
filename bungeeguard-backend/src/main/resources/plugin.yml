@@ -1,3 +1,4 @@
 name: BungeeGuard
 version: ${project.version}
 main: me.lucko.bungeeguard.backend.BackendPlugin
+softdepend: [ProtocolSupport]

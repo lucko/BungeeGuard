@@ -1,8 +1,11 @@
 package me.lucko.bungeeguard.backend;
 
+import lombok.Getter;
+
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.properties.Property;
 
 import org.bukkit.ChatColor;
@@ -12,6 +15,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,17 +27,32 @@ import java.util.UUID;
  * The token is included within the player's profile properties, but removed during the handshake.
  */
 public class BackendPlugin extends JavaPlugin implements Listener {
+    private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<Property>>(){}.getType();
 
+    @Getter
     private final Gson gson = new Gson();
 
     private String noDataKickMessage;
     private String noPropertiesKickMessage;
     private String invalidTokenKickMessage;
+
+    @Getter
     private List<String> allowedTokens;
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(this, this);
+
+        if (getServer().getPluginManager().isPluginEnabled("ProtocolSupport")) {
+            getLogger().info("Using ProtocolSupport hack");
+            try {
+                ProtocolSupportHack.hook(this);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            getLogger().info("Using Paper PlayerHandshakeEvent");
+            getServer().getPluginManager().registerEvents(this, this);
+        }
 
         saveDefaultConfig();
         FileConfiguration config = getConfig();
@@ -68,10 +88,10 @@ public class BackendPlugin extends JavaPlugin implements Listener {
         }
 
         // deserialize the properties in the handshake
-        Property[] properties = gson.fromJson(split[3], Property[].class);
+        List<Property> properties = gson.fromJson(split[3], PROPERTY_LIST_TYPE);
 
         // fail if no properties
-        if (properties.length == 0) {
+        if (properties.isEmpty()) {
             getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - No properties were sent in their handshake.");
             e.setFailMessage(noPropertiesKickMessage);
             e.setFailed(true);
@@ -104,18 +124,17 @@ public class BackendPlugin extends JavaPlugin implements Listener {
         }
 
         // create a new properties array, without our token
-        Property[] newProperties = new Property[properties.length - 1];
-        int i = 0;
+        List<Property> newProperties = new ArrayList<>();
         for (Property property : properties) {
             if (property.getName().equals("bungeeguard-token")) {
                 continue;
             }
 
-            newProperties[i++] = property;
+            newProperties.add(property);
         }
 
         // re-serialize the properties array, without our token this time
-        String newPropertiesString = gson.toJson(newProperties, Property[].class);
+        String newPropertiesString = gson.toJson(newProperties, PROPERTY_LIST_TYPE);
 
         // pass data back to the event
         e.setServerHostname(serverHostname);

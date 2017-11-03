@@ -39,7 +39,13 @@
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.12.1-R0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.protocolsupport</groupId>
+            <artifactId>protocolsupport</artifactId>
+            <version>4.27-dev</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
