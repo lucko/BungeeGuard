@@ -42,12 +42,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.github.protocolsupport</groupId>
-            <artifactId>protocolsupport</artifactId>
-            <version>4.27-dev</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>
