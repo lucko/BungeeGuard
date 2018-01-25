@@ -26,7 +26,7 @@ import java.util.UUID;
  *
  * The token is included within the player's profile properties, but removed during the handshake.
  */
-public class BackendPlugin extends JavaPlugin implements Listener {
+public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
     private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<Property>>(){}.getType();
 
     @Getter
@@ -41,18 +41,8 @@ public class BackendPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-
-        if (getServer().getPluginManager().isPluginEnabled("ProtocolSupport")) {
-            getLogger().info("Using ProtocolSupport hack");
-            try {
-                ProtocolSupportHack.hook(this);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            getLogger().info("Using Paper PlayerHandshakeEvent");
-            getServer().getPluginManager().registerEvents(this, this);
-        }
+        getLogger().info("Using Paper PlayerHandshakeEvent");
+        getServer().getPluginManager().registerEvents(this, this);
 
         saveDefaultConfig();
         FileConfiguration config = getConfig();

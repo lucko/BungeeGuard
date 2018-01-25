@@ -18,9 +18,9 @@ import java.security.SecureRandom;
  * BungeeCord plugin which injects a special authentication token into a players
  * profile properties when they connect to a backend server.
  */
-public class ProxyPlugin extends Plugin implements Listener {
+public class BungeeGuardProxyPlugin extends Plugin implements Listener {
 
-    // characters to use to build our token
+    // characters to use to build a token
     private static final String TOKEN_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**

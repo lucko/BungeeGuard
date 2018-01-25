@@ -56,8 +56,8 @@ class SpoofedLoginResult extends LoginResult {
     }
 
     private Property[] getSpoofedProperties(Property[] properties) {
-        LoginResult.Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
-        newProperties[properties.length] = new LoginResult.Property("bungeeguard-token", extraToken, "");
+        Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
+        newProperties[properties.length] = new Property("bungeeguard-token", extraToken, "");
         return newProperties;
     }
 
