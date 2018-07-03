@@ -5,6 +5,7 @@ import net.md_5.bungee.connection.LoginResult;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Extension of {@link LoginResult} which returns a modified Property array when
@@ -61,8 +62,28 @@ class SpoofedLoginResult extends LoginResult {
         return newProperties;
     }
 
+    @Override
+    public String getId() {
+        // assert non-null
+        return Objects.requireNonNull(super.getId());
+    }
+
+    @Override
+    public String getName() {
+        // assert non-null
+        return Objects.requireNonNull(super.getName());
+    }
+
     static void inject(InitialHandler handler, String token) {
         LoginResult profile = handler.getLoginProfile();
+
+        // profile is null for offline mode servers
+        // we should be safe to just init using null values, all (current) usages
+        // of LoginResult in InitialHandler only query the properties.
+        if (profile == null) {
+            profile = new LoginResult(null, null, new Property[0]);
+        }
+
         LoginResult newProfile = new SpoofedLoginResult(profile.getId(), profile.getName(), profile.getProperties(), token);
         try {
             PROFILE_FIELD.set(handler, newProfile);
