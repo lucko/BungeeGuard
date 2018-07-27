@@ -19,6 +19,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <paper.version>1.13-R0.1-SNAPSHOT</paper.version>
+        <bungee.version>1.13-SNAPSHOT</bungee.version>
+        <lombok.version>1.16.10</lombok.version>
+
         <compiler.version>3.6.1</compiler.version>
         <shade.version>3.0.0</shade.version>
 
