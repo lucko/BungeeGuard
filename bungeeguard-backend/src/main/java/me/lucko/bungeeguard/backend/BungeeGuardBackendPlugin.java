@@ -1,13 +1,11 @@
 package me.lucko.bungeeguard.backend;
 
-import lombok.Getter;
-
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.authlib.properties.Property;
-
+import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -27,7 +25,7 @@ import java.util.UUID;
  * The token is included within the player's profile properties, but removed during the handshake.
  */
 public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
-    private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<Property>>(){}.getType();
+    private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<JsonObject>>(){}.getType();
 
     @Getter
     private final Gson gson = new Gson();
@@ -78,7 +76,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         }
 
         // deserialize the properties in the handshake
-        List<Property> properties = gson.fromJson(split[3], PROPERTY_LIST_TYPE);
+        List<JsonObject> properties = gson.fromJson(split[3], PROPERTY_LIST_TYPE);
 
         // fail if no properties
         if (properties.isEmpty()) {
@@ -91,9 +89,9 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         String token = null;
 
         // try to find the token
-        for (Property property : properties) {
-            if (property.getName().equals("bungeeguard-token")) {
-                token = property.getValue();
+        for (JsonObject property : properties) {
+            if (property.get("name").getAsString().equals("bungeeguard-token")) {
+                token = property.get("value").getAsString();
                 break;
             }
         }
@@ -114,9 +112,9 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         }
 
         // create a new properties array, without our token
-        List<Property> newProperties = new ArrayList<>();
-        for (Property property : properties) {
-            if (property.getName().equals("bungeeguard-token")) {
+        List<JsonObject> newProperties = new ArrayList<>();
+        for (JsonObject property : properties) {
+            if (property.get("name").getAsString().equals("bungeeguard-token")) {
                 continue;
             }
 

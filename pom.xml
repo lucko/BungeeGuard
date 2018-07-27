@@ -19,8 +19,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <compiler.version>3.6.1</compiler.version>
-        <shade.version>3.0.0</shade.version>
+        <paper.version>1.13-R0.1-SNAPSHOT</paper.version>
+        <bungee.version>1.13-SNAPSHOT</bungee.version>
+        <lombok.version>1.18.0</lombok.version>
+
+        <compiler.version>3.7.0</compiler.version>
+        <shade.version>3.1.1</shade.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

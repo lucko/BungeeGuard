@@ -38,13 +38,13 @@
         <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.12.1-R0.1-SNAPSHOT</version>
+            <version>${paper.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.10</version>
+            <version>${lombok.version}</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
