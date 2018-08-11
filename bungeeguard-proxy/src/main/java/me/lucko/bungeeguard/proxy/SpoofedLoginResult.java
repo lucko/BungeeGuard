@@ -15,6 +15,7 @@ import java.util.Objects;
  * to modify the properties without leaking the token to other clients via the tablist.
  */
 class SpoofedLoginResult extends LoginResult {
+
     private static final String SERVER_CONNECTOR = "net.md_5.bungee.ServerConnector";
     private static final String SERVER_CONNECTOR_CONNECTED = "connected";
 

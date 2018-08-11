@@ -21,7 +21,6 @@
 
         <paper.version>1.13-R0.1-SNAPSHOT</paper.version>
         <bungee.version>1.13-SNAPSHOT</bungee.version>
-        <lombok.version>1.18.0</lombok.version>
 
         <compiler.version>3.7.0</compiler.version>
         <shade.version>3.1.1</shade.version>

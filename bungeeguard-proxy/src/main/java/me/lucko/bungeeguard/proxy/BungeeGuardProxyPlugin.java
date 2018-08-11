@@ -1,7 +1,5 @@
 package me.lucko.bungeeguard.proxy;
 
-import com.google.common.base.Preconditions;
-
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -18,7 +16,7 @@ import java.security.SecureRandom;
  * BungeeCord plugin which injects a special authentication token into a players
  * profile properties when they connect to a backend server.
  */
-public class BungeeGuardProxyPlugin extends Plugin implements Listener {
+public final class BungeeGuardProxyPlugin extends Plugin implements Listener {
 
     // characters to use to build a token
     private static final String TOKEN_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -26,14 +24,12 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
     /**
      * Randomly generates a new token
      *
-     * @param length the length of the token
      * @return a new token
      */
-    private static String generateToken(int length) {
-        Preconditions.checkArgument(length > 0);
+    private static String generateToken() {
         StringBuilder sb = new StringBuilder();
         SecureRandom random = new SecureRandom();
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < 64; i++) {
             sb.append(TOKEN_CHARS.charAt(random.nextInt(TOKEN_CHARS.length())));
         }
         return sb.toString();
@@ -63,7 +59,7 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
         }
 
         if (token == null || token.isEmpty()) {
-            token = generateToken(64);
+            token = generateToken();
 
             Configuration configuration = new Configuration();
             configuration.set("token", token);
@@ -80,9 +76,9 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
     }
 
     @EventHandler
-    public void onLogin(LoginEvent e) {
+    public void onLogin(LoginEvent event) {
         // inject our spoofed loginresult instance into the initial handler
-        InitialHandler con = (InitialHandler) e.getConnection();
+        InitialHandler con = (InitialHandler) event.getConnection();
         SpoofedLoginResult.inject(con, token);
     }
 
