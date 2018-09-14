@@ -1,7 +1,6 @@
 package me.lucko.bungeeguard.backend;
 
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
-import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -15,7 +14,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -35,7 +36,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
     private String invalidTokenKickMessage;
 
     @Getter
-    private List<String> allowedTokens;
+    private Set<String> allowedTokens;
 
     @Override
     public void onEnable() {
@@ -48,7 +49,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         noDataKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-data-kick-message"));
         noPropertiesKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-properties-kick-message"));
         invalidTokenKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("invalid-token-kick-message"));
-        allowedTokens = ImmutableList.copyOf(config.getStringList("allowed-tokens"));
+        allowedTokens = new HashSet<>(config.getStringList("allowed-tokens"));
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -104,7 +105,11 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        if (!allowedTokens.contains(token)) {
+        if (allowedTokens.isEmpty()) {
+            allowedTokens.add(token);
+            getConfig().set("allowed-tokens", new ArrayList<>(allowedTokens));
+            saveConfig();
+        } else if (!allowedTokens.contains(token)) {
             getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - An invalid token was used: " + token);
             e.setFailMessage(invalidTokenKickMessage);
             e.setFailed(true);
