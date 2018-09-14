@@ -106,6 +106,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         }
 
         if (allowedTokens.isEmpty()) {
+            getLogger().info("No token configured. Saving the one from the connection " + uniqueId + " @ " + socketAddressHostname + " to the config!");
             allowedTokens.add(token);
             getConfig().set("allowed-tokens", new ArrayList<>(allowedTokens));
             saveConfig();
