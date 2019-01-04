@@ -18,41 +18,25 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <paper.version>1.13-R0.1-SNAPSHOT</paper.version>
-        <bungee.version>1.13-SNAPSHOT</bungee.version>
-        <lombok.version>1.18.0</lombok.version>
-
-        <compiler.version>3.7.0</compiler.version>
-        <shade.version>3.1.1</shade.version>
-
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>luck-snapshots</id>
-            <url>https://nexus.lucko.me/repository/maven-snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>luck-releases</id>
-            <url>https://nexus.lucko.me/repository/maven-releases/</url>
-        </repository>
-    </distributionManagement>
+        <paper.version>1.13.2-R0.1-SNAPSHOT</paper.version>
+        <bungee.version>1.13-SNAPSHOT</bungee.version>
+    </properties>
 
     <repositories>
         <repository>
-            <id>luck-repo</id>
-            <url>https://repo.lucko.me/</url>
+            <id>sonatype-snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>destroystokyo-repo</id>
-            <url>https://repo.destroystokyo.com/repository/maven-public//</url>
+            <id>paper-repo</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
     </repositories>
 

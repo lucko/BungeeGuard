@@ -56,17 +56,17 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
         if (file.exists()) {
             try {
                 Configuration configuration = provider.load(file);
-                token = configuration.getString("token", null);
+                this.token = configuration.getString("token", null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        if (token == null || token.isEmpty()) {
-            token = generateToken(64);
+        if (this.token == null || this.token.isEmpty()) {
+            this.token = generateToken(64);
 
             Configuration configuration = new Configuration();
-            configuration.set("token", token);
+            configuration.set("token", this.token);
 
             try {
                 provider.save(configuration, file);
@@ -83,7 +83,7 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
     public void onLogin(LoginEvent e) {
         // inject our spoofed loginresult instance into the initial handler
         InitialHandler con = (InitialHandler) e.getConnection();
-        SpoofedLoginResult.inject(con, token);
+        SpoofedLoginResult.inject(con, this.token);
     }
 
 }
