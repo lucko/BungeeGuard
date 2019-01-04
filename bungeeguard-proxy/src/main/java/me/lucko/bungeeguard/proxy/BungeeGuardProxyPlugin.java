@@ -76,7 +76,6 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
         }
 
         getProxy().getPluginManager().registerListener(this, this);
-
     }
 
     @EventHandler

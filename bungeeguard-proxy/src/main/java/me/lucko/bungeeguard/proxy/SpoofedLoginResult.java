@@ -20,14 +20,12 @@ class SpoofedLoginResult extends LoginResult {
 
     private static final Field PROFILE_FIELD;
     static {
-        Field profileField;
         try {
-            profileField = InitialHandler.class.getDeclaredField("loginProfile");
-            profileField.setAccessible(true);
+            PROFILE_FIELD = InitialHandler.class.getDeclaredField("loginProfile");
+            PROFILE_FIELD.setAccessible(true);
         } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            throw new ExceptionInInitializerError(e);
         }
-        PROFILE_FIELD = profileField;
     }
 
     private final String extraToken;
@@ -58,7 +56,7 @@ class SpoofedLoginResult extends LoginResult {
 
     private Property[] getSpoofedProperties(Property[] properties) {
         Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
-        newProperties[properties.length] = new Property("bungeeguard-token", extraToken, "");
+        newProperties[properties.length] = new Property("bungeeguard-token", this.extraToken, "");
         return newProperties;
     }
 

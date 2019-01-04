@@ -75,7 +75,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
         }
 
         // deserialize the properties in the handshake
-        List<JsonObject> properties = this.gson.fromJson(split[3], PROPERTY_LIST_TYPE);
+        List<JsonObject> properties = new ArrayList<>(this.gson.fromJson(split[3], PROPERTY_LIST_TYPE));
 
         // fail if no properties
         if (properties.isEmpty()) {
@@ -115,18 +115,9 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
             return;
         }
 
-        // create a new properties array, without our token
-        List<JsonObject> newProperties = new ArrayList<>();
-        for (JsonObject property : properties) {
-            if (property.get("name").getAsString().equals("bungeeguard-token")) {
-                continue;
-            }
-
-            newProperties.add(property);
-        }
-
-        // re-serialize the properties array, without our token this time
-        String newPropertiesString = this.gson.toJson(newProperties, PROPERTY_LIST_TYPE);
+        // remove our property
+        properties.removeIf(property -> property.get("name").getAsString().equals("bungeeguard-token"));
+        String newPropertiesString = this.gson.toJson(properties, PROPERTY_LIST_TYPE);
 
         // pass data back to the event
         e.setServerHostname(serverHostname);
