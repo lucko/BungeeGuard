@@ -29,3 +29,9 @@ This means that even if your backend server is not firewalled, malicious users w
 	  - "AUSXEwebkOGVnbihJM8gBS0QUutDzvIG009xoAfo1Huba9pGvhfjrA21r8dWVsa8"
 	```
 4. Restart the server again.
+
+#### Compatibility
+
+BungeeGuard is known to have compatibility issues with **SkinsRestorer on the proxy side**. This has been fixed in a SkinsRestorer update, please ensure you are using the latest version.
+
+BungeeGuard is known to have compatibility issues with **ProtocolSupport on the backend side**. This has been fixed in a ProtocolSupport update, please ensure you are using the latest version.
