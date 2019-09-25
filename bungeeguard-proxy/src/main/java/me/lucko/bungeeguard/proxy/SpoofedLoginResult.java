@@ -5,7 +5,6 @@ import net.md_5.bungee.connection.LoginResult;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Extension of {@link LoginResult} which returns a modified Property array when
@@ -29,10 +28,20 @@ class SpoofedLoginResult extends LoginResult {
     }
 
     private final String extraToken;
+    private final boolean offline;
 
-    private SpoofedLoginResult(String id, String name, Property[] properties, String extraToken) {
-        super(id, name, properties);
+    // online mode constructor
+    private SpoofedLoginResult(LoginResult oldProfile, String extraToken) {
+        super(oldProfile.getId(), oldProfile.getName(), oldProfile.getProperties());
         this.extraToken = extraToken;
+        this.offline = false;
+    }
+
+    // offline mode constructor
+    private SpoofedLoginResult(String extraToken) {
+        super(null, null, new Property[0]);
+        this.extraToken = extraToken;
+        this.offline = true;
     }
 
     @Override
@@ -48,13 +57,13 @@ class SpoofedLoginResult extends LoginResult {
 
         // if the getProperties method is being called by the server connector, include our token in the properties
         if (callLocation.getClassName().equals(SERVER_CONNECTOR) && callLocation.getMethodName().equals(SERVER_CONNECTOR_CONNECTED)) {
-            return getSpoofedProperties(super.getProperties());
+            return addTokenProperty(super.getProperties());
         }
 
         return super.getProperties();
     }
 
-    private Property[] getSpoofedProperties(Property[] properties) {
+    private Property[] addTokenProperty(Property[] properties) {
         Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
         newProperties[properties.length] = new Property("bungeeguard-token", this.extraToken, "");
         return newProperties;
@@ -62,27 +71,31 @@ class SpoofedLoginResult extends LoginResult {
 
     @Override
     public String getId() {
-        // assert non-null
-        return Objects.requireNonNull(super.getId());
+        if (this.offline) {
+            throw new RuntimeException("getId called for offline variant of SpoofedLoginResult");
+        }
+        return super.getId();
     }
 
     @Override
     public String getName() {
-        // assert non-null
-        return Objects.requireNonNull(super.getName());
+        if (this.offline) {
+            throw new RuntimeException("getId called for offline variant of SpoofedLoginResult");
+        }
+        return super.getId();
     }
 
     static void inject(InitialHandler handler, String token) {
         LoginResult profile = handler.getLoginProfile();
+        LoginResult newProfile;
 
         // profile is null for offline mode servers
-        // we should be safe to just init using null values, all (current) usages
-        // of LoginResult in InitialHandler only query the properties.
         if (profile == null) {
-            profile = new LoginResult(null, null, new Property[0]);
+            newProfile = new SpoofedLoginResult(token); // offline mode constructor
+        } else {
+            newProfile = new SpoofedLoginResult(profile, token); // online mode constructor
         }
 
-        LoginResult newProfile = new SpoofedLoginResult(profile.getId(), profile.getName(), profile.getProperties(), token);
         try {
             PROFILE_FIELD.set(handler, newProfile);
         } catch (IllegalAccessException e) {
