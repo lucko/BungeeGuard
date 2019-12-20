@@ -1,48 +1,34 @@
-/*
- * This file is part of BungeeGuard, licensed under the MIT License.
- *
- *  Copyright (c) lucko (Luck) <luck@lucko.me>
- *  Copyright (c) contributors
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
- */
-
 package me.lucko.bungeeguard.backend;
 
-import me.lucko.bungeeguard.backend.listeners.BukkitLoginListener;
-import me.lucko.bungeeguard.backend.listeners.PaperHandshakeListener;
+import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 /**
- * Simple plugin which listens for player connections, and cancels all attempts
+ * Simple plugin which re-implements the BungeeCord handshake protocol, and cancels all attempts
  * which don't contain the special token set by the proxy.
  *
- * The token is included within the player's profile properties, but removed during the handshake/login.
+ * The token is included within the player's profile properties, but removed during the handshake.
  */
-public class BungeeGuardBackendPlugin extends JavaPlugin {
+public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
+    private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<JsonObject>>(){}.getType();
+
+    private final Gson gson = new Gson();
 
     private String noDataKickMessage;
     private String noPropertiesKickMessage;
@@ -52,6 +38,9 @@ public class BungeeGuardBackendPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getLogger().info("Using Paper PlayerHandshakeEvent");
+        getServer().getPluginManager().registerEvents(this, this);
+
         saveDefaultConfig();
         FileConfiguration config = getConfig();
 
@@ -59,46 +48,82 @@ public class BungeeGuardBackendPlugin extends JavaPlugin {
         this.noPropertiesKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-properties-kick-message"));
         this.invalidTokenKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("invalid-token-kick-message"));
         this.allowedTokens = new HashSet<>(config.getStringList("allowed-tokens"));
+    }
 
-        try {
-            Class.forName("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onHandshake(PlayerHandshakeEvent e) {
+        String handshake = e.getOriginalHandshake();
+        String[] split = handshake.split("\00");
 
-            getLogger().info("Using Paper's PlayerHandshakeEvent for connection filtering.");
-            getServer().getPluginManager().registerEvents(new PaperHandshakeListener(this), this);
-        } catch (ClassNotFoundException e) {
-            getLogger().info("Using Bukkit's PlayerLoginEvent for connection filtering. " +
-                    "Please consider upgrading to Paper (https://papermc.io/) to allow BungeeGuard to filter connections at the handshake stage (better!).");
-            getServer().getPluginManager().registerEvents(new BukkitLoginListener(this), this);
+        if (split.length != 3 && split.length != 4) {
+            e.setFailMessage(this.noDataKickMessage);
+            e.setFailed(true);
+            return;
         }
-    }
 
-    public String getNoDataKickMessage() {
-        return this.noDataKickMessage;
-    }
+        // extract ipforwarding info from the handshake
+        String serverHostname = split[0];
+        String socketAddressHostname = split[1];
+        UUID uniqueId = UUID.fromString(split[2].replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
 
-    public String getNoPropertiesKickMessage() {
-        return this.noPropertiesKickMessage;
-    }
+        // doesn't contain any properties - so deny
+        if (split.length == 3) {
+            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - No properties were sent in their handshake.");
+            e.setFailMessage(this.noPropertiesKickMessage);
+            e.setFailed(true);
+            return;
+        }
 
-    public String getInvalidTokenKickMessage() {
-        return this.invalidTokenKickMessage;
-    }
+        // deserialize the properties in the handshake
+        List<JsonObject> properties = new ArrayList<>(this.gson.fromJson(split[3], PROPERTY_LIST_TYPE));
 
-    public boolean denyLogin(String address, UUID uniqueId, String token) {
+        // fail if no properties
+        if (properties.isEmpty()) {
+            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - No properties were sent in their handshake.");
+            e.setFailMessage(this.noPropertiesKickMessage);
+            e.setFailed(true);
+            return;
+        }
+
+        String token = null;
+
+        // try to find the token
+        for (JsonObject property : properties) {
+            if (property.get("name").getAsString().equals("bungeeguard-token")) {
+                token = property.get("value").getAsString();
+                break;
+            }
+        }
+
+        // deny connection if no token was provided
+        if (token == null) {
+            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - A token was not included in their handshake properties.");
+            e.setFailMessage(this.noPropertiesKickMessage);
+            e.setFailed(true);
+            return;
+        }
+
         if (this.allowedTokens.isEmpty()) {
-            getLogger().warning("No token configured. Saving the one from the connection " + uniqueId + " @ " + address + " to the config!");
+            getLogger().info("No token configured. Saving the one from the connection " + uniqueId + " @ " + socketAddressHostname + " to the config!");
             this.allowedTokens.add(token);
             getConfig().set("allowed-tokens", new ArrayList<>(this.allowedTokens));
             saveConfig();
         } else if (!this.allowedTokens.contains(token)) {
-            logDeniedConnection(address, uniqueId, "An invalid token was used: " + token);
-            return true;
+            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - An invalid token was used: " + token);
+            e.setFailMessage(this.invalidTokenKickMessage);
+            e.setFailed(true);
+            return;
         }
 
-        return false;
+        // remove our property
+        properties.removeIf(property -> property.get("name").getAsString().equals("bungeeguard-token"));
+        String newPropertiesString = this.gson.toJson(properties, PROPERTY_LIST_TYPE);
+
+        // pass data back to the event
+        e.setServerHostname(serverHostname);
+        e.setSocketAddressHostname(socketAddressHostname);
+        e.setUniqueId(uniqueId);
+        e.setPropertiesJson(newPropertiesString);
     }
 
-    public void logDeniedConnection(String address, UUID uniqueId, String message) {
-        getLogger().warning("Denied connection from " + uniqueId + " @ " + address + " - " + message);
-    }
 }
