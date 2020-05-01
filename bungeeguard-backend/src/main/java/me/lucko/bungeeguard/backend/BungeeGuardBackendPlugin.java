@@ -38,6 +38,21 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        try {
+            Class.forName("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
+        } catch (ClassNotFoundException e1) {
+            getLogger().severe("Server " + getServer().getName() + " " + getServer().getBukkitVersion() + " is incompatible with this plugin!");
+            try {
+                Class.forName("com.destroystokyo.paper.PaperConfig");
+                getLogger().info("Your server is too old and does not have the required API, please update!");
+            } catch (ClassNotFoundException e2) {
+                getLogger().info("You are running a server type which does not provide the required API.");
+                getLogger().info("Please install a recent version of Paper! For more info visit https://papermc.io");
+            }
+            getLogger().info("Shutting down the server to be safe!");
+            getServer().shutdown();
+            return;
+        }
         getLogger().info("Using Paper PlayerHandshakeEvent");
         getServer().getPluginManager().registerEvents(this, this);
 
