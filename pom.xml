@@ -21,8 +21,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <paper.version>1.13.2-R0.1-SNAPSHOT</paper.version>
-        <bungee.version>1.13-SNAPSHOT</bungee.version>
+        <paper.version>1.15.2-R0.1-SNAPSHOT</paper.version>
+        <bungee.version>1.15-SNAPSHOT</bungee.version>
     </properties>
 
     <repositories>
@@ -37,6 +37,10 @@
         <repository>
             <id>paper-repo</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>luck-repo</id>
+            <url>https://repo.lucko.me/</url>
         </repository>
     </repositories>
 
