@@ -1,144 +1,118 @@
+/*
+ * This file is part of BungeeGuard, licensed under the MIT License.
+ *
+ *  Copyright (c) lucko (Luck) <luck@lucko.me>
+ *  Copyright (c) contributors
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ */
+
 package me.lucko.bungeeguard.backend;
 
-import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+import me.lucko.bungeeguard.backend.listener.PaperHandshakeListener;
+import me.lucko.bungeeguard.backend.listener.ProtocolHandshakeListener;
 
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 /**
- * Simple plugin which re-implements the BungeeCord handshake protocol, and cancels all attempts
- * which don't contain the special token set by the proxy.
+ * Simple plugin which overrides the BungeeCord handshake protocol, and cancels all
+ * connections which don't contain a special auth token set by the proxy.
  *
  * The token is included within the player's profile properties, but removed during the handshake.
  */
-public class BungeeGuardBackendPlugin extends JavaPlugin implements Listener {
-    private static final Type PROPERTY_LIST_TYPE = new TypeToken<List<JsonObject>>(){}.getType();
+public class BungeeGuardBackendPlugin extends JavaPlugin {
 
-    private final Gson gson = new Gson();
-
-    private String noDataKickMessage;
-    private String noPropertiesKickMessage;
-    private String invalidTokenKickMessage;
-
-    private Set<String> allowedTokens;
+    private TokenStore tokenStore;
 
     @Override
     public void onEnable() {
-        try {
-            Class.forName("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
-        } catch (ClassNotFoundException e1) {
-            getLogger().severe("Server " + getServer().getName() + " " + getServer().getBukkitVersion() + " is incompatible with this plugin!");
-            try {
-                Class.forName("com.destroystokyo.paper.PaperConfig");
-                getLogger().info("Your server is too old and does not have the required API, please update!");
-            } catch (ClassNotFoundException e2) {
-                getLogger().info("You are running a server type which does not provide the required API.");
-                getLogger().info("Please install a recent version of Paper! For more info visit https://papermc.io");
-            }
-            getLogger().info("Shutting down the server to be safe!");
-            getServer().shutdown();
-            return;
-        }
-        getLogger().info("Using Paper PlayerHandshakeEvent");
-        getServer().getPluginManager().registerEvents(this, this);
-
         saveDefaultConfig();
-        FileConfiguration config = getConfig();
+        this.tokenStore = new TokenStore(this);
 
-        this.noDataKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-data-kick-message"));
-        this.noPropertiesKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-properties-kick-message"));
-        this.invalidTokenKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("invalid-token-kick-message"));
-        this.allowedTokens = new HashSet<>(config.getStringList("allowed-tokens"));
+        if (isPaperHandshakeEvent()) {
+            getLogger().info("Using Paper's PlayerHandshakeEvent to listen for connections.");
+
+            PaperHandshakeListener listener = new PaperHandshakeListener(this.tokenStore, getLogger(), getConfig());
+            getServer().getPluginManager().registerEvents(listener, this);
+
+        } else if (isProtocolLib()) {
+            getLogger().info("Using ProtocolLib to listen for connections.");
+
+            ProtocolHandshakeListener listener = new ProtocolHandshakeListener(this.tokenStore, getLogger(), getConfig());
+            listener.registerAdapter(this);
+
+        } else {
+            getLogger().severe("------------------------------------------------------------");
+            getLogger().severe("BungeeGuard is unable to listen for handshakes! The server will now shut down.");
+            getLogger().severe("");
+            if (isPaperServer()) {
+                getLogger().severe("Please install ProtocolLib in order to use this plugin.");
+            } else {
+                getLogger().severe("If your server is using 1.9.4 or newer, please upgrade to Paper - https://papermc.io");
+                getLogger().severe("If your server is using 1.8.8 or older, please install ProtocolLib.");
+            }
+            getLogger().severe("------------------------------------------------------------");
+            getServer().shutdown();
+        }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onHandshake(PlayerHandshakeEvent e) {
-        String handshake = e.getOriginalHandshake();
-        String[] split = handshake.split("\00");
-
-        if (split.length != 3 && split.length != 4) {
-            e.setFailMessage(this.noDataKickMessage);
-            e.setFailed(true);
-            return;
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof ConsoleCommandSender)) {
+            sender.sendMessage(ChatColor.RED + "Sorry, this command can only be ran from the console.");
+            return true;
         }
 
-        // extract ipforwarding info from the handshake
-        String serverHostname = split[0];
-        String socketAddressHostname = split[1];
-        UUID uniqueId = UUID.fromString(split[2].replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
-
-        // doesn't contain any properties - so deny
-        if (split.length == 3) {
-            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - No properties were sent in their handshake.");
-            e.setFailMessage(this.noPropertiesKickMessage);
-            e.setFailed(true);
-            return;
+        if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) {
+            sender.sendMessage(ChatColor.RED + "Running BungeeGuard v" + getDescription().getVersion());
+            sender.sendMessage(ChatColor.GRAY + "Use '/bungeeguard reload' to reload the configuration.");
+            return true;
         }
 
-        // deserialize the properties in the handshake
-        List<JsonObject> properties = new ArrayList<>(this.gson.fromJson(split[3], PROPERTY_LIST_TYPE));
+        this.tokenStore.reload();
+        sender.sendMessage(ChatColor.RED + "BungeeGuard configuration reloaded.");
+        return true;
+    }
 
-        // fail if no properties
-        if (properties.isEmpty()) {
-            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - No properties were sent in their handshake.");
-            e.setFailMessage(this.noPropertiesKickMessage);
-            e.setFailed(true);
-            return;
+    private static boolean isPaperHandshakeEvent() {
+        return classExists("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
+    }
+
+    private static boolean isPaperServer() {
+        return classExists("com.destroystokyo.paper.PaperConfig");
+    }
+
+    private boolean isProtocolLib() {
+        return getServer().getPluginManager().getPlugin("ProtocolLib") != null;
+    }
+
+    private static boolean classExists(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
-
-        String token = null;
-
-        // try to find the token
-        for (JsonObject property : properties) {
-            if (property.get("name").getAsString().equals("bungeeguard-token")) {
-                token = property.get("value").getAsString();
-                break;
-            }
-        }
-
-        // deny connection if no token was provided
-        if (token == null) {
-            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - A token was not included in their handshake properties.");
-            e.setFailMessage(this.noPropertiesKickMessage);
-            e.setFailed(true);
-            return;
-        }
-
-        if (this.allowedTokens.isEmpty()) {
-            getLogger().info("No token configured. Saving the one from the connection " + uniqueId + " @ " + socketAddressHostname + " to the config!");
-            this.allowedTokens.add(token);
-            getConfig().set("allowed-tokens", new ArrayList<>(this.allowedTokens));
-            saveConfig();
-        } else if (!this.allowedTokens.contains(token)) {
-            getLogger().warning("Denied connection from " + uniqueId + " @ " + socketAddressHostname + " - An invalid token was used: " + token);
-            e.setFailMessage(this.invalidTokenKickMessage);
-            e.setFailed(true);
-            return;
-        }
-
-        // remove our property
-        properties.removeIf(property -> property.get("name").getAsString().equals("bungeeguard-token"));
-        String newPropertiesString = this.gson.toJson(properties, PROPERTY_LIST_TYPE);
-
-        // pass data back to the event
-        e.setServerHostname(serverHostname);
-        e.setSocketAddressHostname(socketAddressHostname);
-        e.setUniqueId(uniqueId);
-        e.setPropertiesJson(newPropertiesString);
     }
 
 }

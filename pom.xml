@@ -12,6 +12,7 @@
     <modules>
         <module>bungeeguard-proxy</module>
         <module>bungeeguard-backend</module>
+        <module>bungeeguard-universal</module>
     </modules>
 
     <name>BungeeGuard</name>

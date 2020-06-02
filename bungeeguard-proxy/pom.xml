@@ -13,21 +13,12 @@
     <artifactId>bungeeguard-proxy</artifactId>
 
     <build>
-        <defaultGoal>clean package</defaultGoal>
-        <finalName>${project.name}</finalName>
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>*.yml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>../</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>LICENSE.txt</include>
                 </includes>
             </resource>
         </resources>

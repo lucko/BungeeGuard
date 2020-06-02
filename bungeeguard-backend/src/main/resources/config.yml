@@ -7,6 +7,12 @@ allowed-tokens: []
 
 
 # Messages
+
+# Kick message sent to connections without any forwarded data from the proxy.
+# Most likely a vanilla client connecting directly to the server, bypassing the proxy.
 no-data-kick-message: "&cUnable to authenticate - no data was forwarded by the proxy."
-no-properties-kick-message: "&cUnable to authenticate."
-invalid-token-kick-message: "&cAn invalid authentication token was provided."
+
+# Kick message sent to connections with forwarding data, but without a correct BungeeGuard token
+# included in their handshake. Assuming BungeeGuard is installed correctly on all proxies,
+# this is most likely a client trying to exploit the BungeeCord protocol to spoof their uuid.
+invalid-token-kick-message: "&cUnable to authenticate."
