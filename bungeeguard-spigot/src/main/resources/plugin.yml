@@ -3,7 +3,7 @@ version: ${project.version}
 description: Plugin which adds a security token to the BungeeCord handshaking protocol
 author: Luck
 
-main: me.lucko.bungeeguard.backend.BungeeGuardBackendPlugin
+main: me.lucko.bungeeguard.spigot.BungeeGuardBackendPlugin
 softdepend: [ProtocolLib]
 api-version: 1.13
 

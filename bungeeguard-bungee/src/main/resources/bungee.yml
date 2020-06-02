@@ -2,4 +2,4 @@ name: BungeeGuard
 version: ${project.version}
 description: Plugin which adds a security token to the BungeeCord handshaking protocol
 author: Luck
-main: me.lucko.bungeeguard.proxy.BungeeGuardProxyPlugin
+main: me.lucko.bungeeguard.bungee.BungeeGuardProxyPlugin

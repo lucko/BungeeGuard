@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>bungeeguard-proxy</module>
-        <module>bungeeguard-backend</module>
+        <module>bungeeguard-bungee</module>
+        <module>bungeeguard-spigot</module>
         <module>bungeeguard-universal</module>
     </modules>
 

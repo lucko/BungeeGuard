@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend;
+package me.lucko.bungeeguard.spigot;
 
 import java.util.HashSet;
 import java.util.Set;

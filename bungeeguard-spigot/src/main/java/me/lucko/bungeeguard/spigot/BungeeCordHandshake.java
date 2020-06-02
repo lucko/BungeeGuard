@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend;
+package me.lucko.bungeeguard.spigot;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

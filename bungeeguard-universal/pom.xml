@@ -45,13 +45,13 @@
     <dependencies>
         <dependency>
             <groupId>me.lucko</groupId>
-            <artifactId>bungeeguard-backend</artifactId>
+            <artifactId>bungeeguard-bungee</artifactId>
             <version>1.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>me.lucko</groupId>
-            <artifactId>bungeeguard-proxy</artifactId>
+            <artifactId>bungeeguard-spigot</artifactId>
             <version>1.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.proxy;
+package me.lucko.bungeeguard.bungee;
 
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.LoginResult;

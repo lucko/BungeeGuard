@@ -23,9 +23,9 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend.listener;
+package me.lucko.bungeeguard.spigot.listener;
 
-import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.spigot.TokenStore;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;

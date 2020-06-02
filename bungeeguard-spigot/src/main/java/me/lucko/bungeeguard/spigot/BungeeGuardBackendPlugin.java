@@ -23,10 +23,10 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend;
+package me.lucko.bungeeguard.spigot;
 
-import me.lucko.bungeeguard.backend.listener.PaperHandshakeListener;
-import me.lucko.bungeeguard.backend.listener.ProtocolHandshakeListener;
+import me.lucko.bungeeguard.spigot.listener.PaperHandshakeListener;
+import me.lucko.bungeeguard.spigot.listener.ProtocolHandshakeListener;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

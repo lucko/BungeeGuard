@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend.listener;
+package me.lucko.bungeeguard.spigot.listener;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -34,8 +34,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
-import me.lucko.bungeeguard.backend.BungeeCordHandshake;
-import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
+import me.lucko.bungeeguard.spigot.TokenStore;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;

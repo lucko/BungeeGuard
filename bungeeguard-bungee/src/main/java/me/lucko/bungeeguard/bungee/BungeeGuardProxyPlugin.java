@@ -23,7 +23,7 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.proxy;
+package me.lucko.bungeeguard.bungee;
 
 import com.google.common.base.Preconditions;
 

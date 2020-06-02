@@ -23,12 +23,12 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.backend.listener;
+package me.lucko.bungeeguard.spigot.listener;
 
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 
-import me.lucko.bungeeguard.backend.BungeeCordHandshake;
-import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
+import me.lucko.bungeeguard.spigot.TokenStore;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
