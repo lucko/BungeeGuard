@@ -2,23 +2,31 @@
 
 BungeeGuard is a plugin which adds a security token to the BungeeCord handshaking protocol. In the case that the backend servers are not properly firewalled, it prevents players from bypassing the proxy and spoofing their UUID.
 
-* BungeeCord installations are insecure by default, and require additional firewall rules to be configured for the backend Minecraft servers to prevent abuse from malicious users.
-* This process can be complicated, and because of that many users opt to skip it or carry it out it incorrectly.
-* BungeeGuard rectifies this by adding a secret security token to the handshake, allowing the backend server to verify whether a connection originated from a trusted proxy.
+* BungeeCord installations are insecure by default, and require additional firewall rules to be configured for each of the connected backend Minecraft servers in order to prevent abuse from malicious users.
+* This process can be complicated (and often impossible on shared hosts). Due to this, many users opt to skip firewalling or carry it out it incorrectly.
+* BungeeGuard solves this by offering an alternative solution - adding a secret security token to the handshake. This allows the backend server to easily verify whether a connection originated from a trusted proxy.
 
-It is a more sensible replacement to "ip whitelist" or "only proxy join" type plugins.
+It is a more sensible alternative to "ip whitelist" or "only proxy join" type plugins.
 
 ## Installation
 
 Installation is very straightforward.
 
-#### On your BungeeCord proxies...
+### On your proxy...
+
+#### If you are using BungeeCord
 
 1. Ensure `ip_forward` is set to `true` in BungeeCord's `config.yml`.
 2. Add [`BungeeGuard.jar`](https://ci.lucko.me/job/BungeeGuard/lastSuccessfulBuild/artifact/bungeeguard-universal/target/BungeeGuard.jar) to the plugins folder. Then restart the proxy. If you have multiple proxies in your network, do this for each of them.
 3. Navigate to `/plugins/BungeeGuard/token.yml` and make a note of the value of `token`. 
 
-#### On each of your backend Minecraft servers...
+#### If you are using Velocity
+
+1. Ensure you are using Velocity 1.1.0 or newer.
+2. Set `player-info-forwarding-mode` to `"bungeeguard"` in `velocity.toml`, and make note of the value of `forwarding-secret`. This is the value used for the BungeeGuard token. If you have multiple proxies in your network, do this for each of them.
+4. Restart the proxy.
+
+### On each of your backend Minecraft servers...
 
 1. Ensure you are either using [Paper](https://papermc.io/) 1.9.4+ or have [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) installed.
 2. Ensure `bungeecord` is set to `true` in `spigot.yml`.
