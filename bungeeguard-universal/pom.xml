@@ -7,11 +7,11 @@
     <parent>
         <groupId>me.lucko</groupId>
         <artifactId>bungeeguard</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>bungeeguard-universal</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -46,13 +46,13 @@
         <dependency>
             <groupId>me.lucko</groupId>
             <artifactId>bungeeguard-bungee</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>me.lucko</groupId>
             <artifactId>bungeeguard-spigot</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
