@@ -68,7 +68,12 @@ public class BungeeCordHandshake {
 
         String serverHostname = split[0];
         String socketAddressHostname = split[1];
-        UUID uniqueId = UUID.fromString(split[2].replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+        UUID uniqueId;
+        try {
+            uniqueId = UUID.fromString(split[2].replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+        } catch (IllegalArgumentException ex) {
+            return new Fail(Fail.Reason.INVALID_HANDSHAKE, handshake);
+        }
 
         String connectionDescription = uniqueId + " @ " + socketAddressHostname;
 
