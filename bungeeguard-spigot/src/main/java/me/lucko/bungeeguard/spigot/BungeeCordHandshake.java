@@ -61,6 +61,15 @@ public class BungeeCordHandshake {
      * @return the handshake result
      */
     public static BungeeCordHandshake decodeAndVerify(String handshake, TokenStore tokenStore) {
+        try {
+            return decodeAndVerify0(handshake, tokenStore);
+        } catch (Exception e) {
+            new Exception("Failed to decode handshake", e).printStackTrace();
+            return new Fail(Fail.Reason.INVALID_HANDSHAKE, handshake);
+        }
+    }
+
+    private static BungeeCordHandshake decodeAndVerify0(String handshake, TokenStore tokenStore) throws Exception {
         String[] split = handshake.split("\00");
         if (split.length != 3 && split.length != 4) {
             return new Fail(Fail.Reason.INVALID_HANDSHAKE, handshake);
