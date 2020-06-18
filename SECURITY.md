@@ -1,6 +1,6 @@
 # Reporting a Vulnerability
 
-Serious vulnerabilities should be reported in private, using the context details [here](https://lucko.me/). You can encrypt your message using my PGP key if you feel inclined to do so.
+Serious vulnerabilities should be reported in private, using the contact details [here](https://lucko.me/). You can encrypt your message using my PGP key if you feel inclined to do so.
 
 # Security Patches
 
