@@ -65,6 +65,10 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
 
         @Override
         public void onPacketReceiving(PacketEvent event) {
+            if (event.isCancelled()) {
+                return;
+            }
+            
             PacketContainer packet = event.getPacket();
 
             // only handle the LOGIN phase
