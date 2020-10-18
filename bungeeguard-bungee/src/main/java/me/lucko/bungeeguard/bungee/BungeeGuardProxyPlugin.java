@@ -105,6 +105,10 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
 
     @EventHandler
     public void onLogin(LoginEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+        
         // inject our spoofed loginresult instance into the initial handler
         InitialHandler con = (InitialHandler) e.getConnection();
         SpoofedLoginResult.inject(con, this.token);
