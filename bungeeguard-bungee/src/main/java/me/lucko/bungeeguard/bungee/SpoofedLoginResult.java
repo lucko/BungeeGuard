@@ -25,6 +25,7 @@
 
 package me.lucko.bungeeguard.bungee;
 
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.LoginResult;
 
@@ -39,8 +40,7 @@ import java.util.Arrays;
  * to modify the properties without leaking the token to other clients via the tablist.
  */
 class SpoofedLoginResult extends LoginResult {
-    private static final String SERVER_CONNECTOR = "net.md_5.bungee.ServerConnector";
-    private static final String SERVER_CONNECTOR_CONNECTED = "connected";
+    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private static final Field PROFILE_FIELD;
     static {
@@ -53,12 +53,14 @@ class SpoofedLoginResult extends LoginResult {
     }
 
     private final String extraToken;
+    private final Property[] justExtraToken;
     private final boolean offline;
 
     // online mode constructor
     private SpoofedLoginResult(LoginResult oldProfile, String extraToken) {
         super(oldProfile.getId(), oldProfile.getName(), oldProfile.getProperties());
         this.extraToken = extraToken;
+        this.justExtraToken = new Property[]{new Property("bungeeguard-token", this.extraToken, "")};
         this.offline = false;
     }
 
@@ -66,29 +68,28 @@ class SpoofedLoginResult extends LoginResult {
     private SpoofedLoginResult(String extraToken) {
         super(null, null, new Property[0]);
         this.extraToken = extraToken;
+        this.justExtraToken = new Property[]{new Property("bungeeguard-token", this.extraToken, "")};
         this.offline = true;
     }
 
     @Override
     public Property[] getProperties() {
         // there's no way this is the best way to do this, but idfk
-        StackTraceElement[] trace = new Exception().getStackTrace();
-
-        if (trace.length < 2) {
-            return super.getProperties();
-        }
-
-        StackTraceElement callLocation = trace[1];
+        Class<?> caller = STACK_WALKER.getCallerClass();
 
         // if the getProperties method is being called by the server connector, include our token in the properties
-        if (callLocation.getClassName().equals(SERVER_CONNECTOR) && callLocation.getMethodName().equals(SERVER_CONNECTOR_CONNECTED)) {
+        if (caller == ServerConnector.class) {
             return addTokenProperty(super.getProperties());
+        } else {
+            return super.getProperties();
         }
-
-        return super.getProperties();
     }
 
     private Property[] addTokenProperty(Property[] properties) {
+        if (properties.length == 0) {
+            return this.justExtraToken;
+        }
+
         Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
         newProperties[properties.length] = new Property("bungeeguard-token", this.extraToken, "");
         return newProperties;
