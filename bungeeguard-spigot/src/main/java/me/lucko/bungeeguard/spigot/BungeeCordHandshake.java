@@ -70,6 +70,10 @@ public class BungeeCordHandshake {
     }
 
     private static BungeeCordHandshake decodeAndVerify0(String handshake, TokenStore tokenStore) throws Exception {
+        if (handshake.length() > 1000) {
+            return new Fail(Fail.Reason.INVALID_HANDSHAKE, "handshake exceeds 1000 characters");
+        }
+
         String[] split = handshake.split("\00");
         if (split.length != 3 && split.length != 4) {
             return new Fail(Fail.Reason.INVALID_HANDSHAKE, handshake);
@@ -94,6 +98,10 @@ public class BungeeCordHandshake {
         for (Iterator<JsonObject> iterator = properties.iterator(); iterator.hasNext(); ) {
             JsonObject property = iterator.next();
             if (property.get(PROPERTY_NAME_KEY).getAsString().equals(BUNGEEGUARD_TOKEN_NAME)) {
+                if (bungeeGuardToken != null) {
+                    return new Fail(Fail.Reason.INCORRECT_TOKEN, connectionDescription + " - more than one token");
+                }
+
                 bungeeGuardToken = property.get(PROPERTY_VALUE_KEY).getAsString();
                 iterator.remove();
             }
