@@ -41,4 +41,6 @@ See [INSTALLATION.md](INSTALLATION.md) for a detailed install guide.
 
 ## License
 
-BungeeGuard is licensed and made available under the permissive MIT license. Please see [LICENSE.txt](INSTALLATION.md) for more information.
+BungeeGuard is licensed and made available under the permissive MIT license. Please see [LICENSE.txt](LICENSE.md) for more information.
+
+Details about vulnerability reporting & security disclosures can be found in [SECURITY.md](SECURITY.md).
