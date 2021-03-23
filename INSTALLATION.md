@@ -20,7 +20,7 @@ The latest versions of BungeeGuard can be found from:
 
 #### If you are using Velocity
 
-1. Ensure you are using Velocity 1.1.0 or newer.
+1. Ensure you are using Velocity 1.1.0 or newer. (There is no need to install `BungeeGuard.jar` - it is built into Velocity already!)
 2. Set `player-info-forwarding-mode` to `"bungeeguard"` in `velocity.toml`, and make note of the `forwarding-secret`. This is the value used for the BungeeGuard token. If you have multiple proxies in your network, do this for each of them.
 4. Restart the proxy.
 
