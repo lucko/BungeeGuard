@@ -24,6 +24,8 @@ The latest versions of BungeeGuard can be found from:
 2. Set `player-info-forwarding-mode` to `"bungeeguard"` in `velocity.toml`, and make note of the `forwarding-secret`. This is the value used for the BungeeGuard token. If you have multiple proxies in your network, do this for each of them.
 4. Restart the proxy.
 
+***You do NOT need to install the BungeeCord.jar! BungeeGuard is built into Velocity.***
+
 ### On each of your backend Minecraft servers...
 
 1. Ensure you are either using [Paper](https://papermc.io/) 1.9.4+ or have [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) installed.
