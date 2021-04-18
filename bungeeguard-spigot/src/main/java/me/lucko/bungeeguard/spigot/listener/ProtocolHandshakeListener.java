@@ -44,6 +44,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 /**
@@ -77,8 +78,16 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
             BungeeCordHandshake decoded = BungeeCordHandshake.decodeAndVerify(handshake, ProtocolHandshakeListener.this.tokenStore);
 
             if (decoded instanceof BungeeCordHandshake.Fail) {
+                String ip = "null";
+                InetSocketAddress address = event.getPlayer().getAddress();
+                if (address != null) {
+                    ip = address.getHostString();
+                    if (ip.length() > 15) {
+                        ip = BungeeCordHandshake.encodeBase64(ip);
+                    }
+                }
                 BungeeCordHandshake.Fail fail = (BungeeCordHandshake.Fail) decoded;
-                ProtocolHandshakeListener.this.logger.warning("Denying connection from " + fail.describeConnection() + " - reason: " + fail.reason().name());
+                ProtocolHandshakeListener.this.logger.warning("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
 
                 String kickMessage;
                 if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {

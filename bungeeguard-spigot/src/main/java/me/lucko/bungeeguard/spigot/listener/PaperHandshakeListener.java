@@ -35,12 +35,24 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
+import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 /**
  * A handshake listener using Paper's {@link PlayerHandshakeEvent}.
  */
 public class PaperHandshakeListener extends AbstractHandshakeListener implements Listener {
+    
+    private static final Method getOriginalSocketAddressHostname;
+    static {
+        Method method = null;
+        try {
+            method = PlayerHandshakeEvent.class.getMethod("getOriginalSocketAddressHostname");
+        } catch (NoSuchMethodException ignored) {
+            // Paper added this method in 1.16
+        }
+        getOriginalSocketAddressHostname = method;
+    }
     public PaperHandshakeListener(TokenStore tokenStore, Logger logger, ConfigurationSection config) {
         super(tokenStore, logger, config);
     }
@@ -51,7 +63,15 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
 
         if (decoded instanceof BungeeCordHandshake.Fail) {
             BungeeCordHandshake.Fail fail = (BungeeCordHandshake.Fail) decoded;
-            this.logger.warning("Denying connection from " + fail.describeConnection() + " - reason: " + fail.reason().name());
+            String ip = "";
+            if (getOriginalSocketAddressHostname != null) {
+                try {
+                    ip = getOriginalSocketAddressHostname.invoke(e) + " - ";
+                } catch (ReflectiveOperationException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            this.logger.warning("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
 
             if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
                 e.setFailMessage(this.noDataKickMessage);
