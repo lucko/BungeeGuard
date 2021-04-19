@@ -1,6 +1,6 @@
 name: BungeeGuard
 version: ${project.version}
-description: Plugin which adds a security token to the BungeeCord handshaking protocol
+description: A plugin-based security/firewall solution for BungeeCord and Velocity proxies.
 author: Luck
 
 main: me.lucko.bungeeguard.spigot.BungeeGuardBackendPlugin

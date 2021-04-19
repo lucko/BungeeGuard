@@ -51,6 +51,12 @@
         </dependency>
         <dependency>
             <groupId>me.lucko</groupId>
+            <artifactId>bungeeguard-bungee-java9</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.lucko</groupId>
             <artifactId>bungeeguard-spigot</artifactId>
             <version>1.2-SNAPSHOT</version>
             <scope>compile</scope>
