@@ -48,6 +48,8 @@ public class BungeeCordHandshake {
     private static final String PROPERTY_NAME_KEY = "name";
     /** The key used to define the value of properties in the handshake. */
     private static final String PROPERTY_VALUE_KEY = "value";
+    /** The maximum allowed length of the handshake. */
+    private static final int HANDSHAKE_LENGTH_LIMIT = 2500;
 
     /** Shared Gson instance. */
     private static final Gson GSON = new Gson();
@@ -72,8 +74,8 @@ public class BungeeCordHandshake {
     }
 
     private static BungeeCordHandshake decodeAndVerify0(String handshake, TokenStore tokenStore) throws Exception {
-        if (handshake.length() > 1000) {
-            return new Fail(Fail.Reason.INVALID_HANDSHAKE, "handshake exceeds 1000 characters");
+        if (handshake.length() > HANDSHAKE_LENGTH_LIMIT) {
+            return new Fail(Fail.Reason.INVALID_HANDSHAKE, "handshake length " + handshake.length() + " is > " + HANDSHAKE_LENGTH_LIMIT);
         }
 
         String[] split = handshake.split("\00");
