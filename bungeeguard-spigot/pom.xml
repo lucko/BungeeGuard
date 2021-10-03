@@ -27,6 +27,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>me.lucko</groupId>
+            <artifactId>bungeeguard-backend</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>${paper.version}</version>

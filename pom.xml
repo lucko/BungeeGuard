@@ -12,7 +12,9 @@
     <modules>
         <module>bungeeguard-bungee</module>
         <module>bungeeguard-bungee-java9</module>
+        <module>bungeeguard-backend</module>
         <module>bungeeguard-spigot</module>
+        <module>bungeeguard-sponge</module>
         <module>bungeeguard-universal</module>
     </modules>
 

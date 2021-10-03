@@ -23,29 +23,25 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.spigot.listener;
+package me.lucko.bungeeguard.backend.listener;
 
-import me.lucko.bungeeguard.spigot.TokenStore;
-
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.logging.Logger;
+import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.TokenStore;
 
 /**
  * An abstract handshake listener.
  */
 public abstract class AbstractHandshakeListener {
+    protected final BackendPlugin plugin;
     protected final TokenStore tokenStore;
-    protected final Logger logger;
 
     protected final String noDataKickMessage;
     protected final String invalidTokenKickMessage;
 
-    protected AbstractHandshakeListener(TokenStore tokenStore, Logger logger, ConfigurationSection config) {
+    protected AbstractHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+        this.plugin = plugin;
         this.tokenStore = tokenStore;
-        this.logger = logger;
-        this.noDataKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("no-data-kick-message"));
-        this.invalidTokenKickMessage = ChatColor.translateAlternateColorCodes('&', config.getString("invalid-token-kick-message"));
+        this.noDataKickMessage = plugin.getMessage("no-data-kick-message");
+        this.invalidTokenKickMessage = plugin.getMessage("invalid-token-kick-message");
     }
 }

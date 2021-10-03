@@ -34,25 +34,26 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
+import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
-import me.lucko.bungeeguard.spigot.TokenStore;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.net.InetSocketAddress;
-import java.util.logging.Logger;
 
 /**
  * A handshake listener using ProtocolLib.
  */
 public class ProtocolHandshakeListener extends AbstractHandshakeListener {
-    public ProtocolHandshakeListener(TokenStore tokenStore, Logger logger, ConfigurationSection config) {
-        super(tokenStore, logger, config);
+
+    public ProtocolHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+        super(plugin, tokenStore);
     }
 
     public void registerAdapter(Plugin plugin) {
@@ -87,7 +88,7 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
                     }
                 }
                 BungeeCordHandshake.Fail fail = (BungeeCordHandshake.Fail) decoded;
-                ProtocolHandshakeListener.this.logger.warning("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
+                ProtocolHandshakeListener.this.plugin.logWarn("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
 
                 String kickMessage;
                 if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {

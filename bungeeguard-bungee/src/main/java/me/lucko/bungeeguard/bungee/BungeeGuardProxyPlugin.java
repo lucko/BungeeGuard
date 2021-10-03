@@ -38,6 +38,7 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.io.File;
 import java.security.SecureRandom;
+import java.util.logging.Level;
 
 /**
  * BungeeCord plugin which injects a special authentication token into a players
@@ -83,7 +84,7 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
                 Configuration configuration = provider.load(file);
                 this.token = configuration.getString("token", null);
             } catch (Exception e) {
-                e.printStackTrace();
+                getLogger().log(Level.SEVERE, "Unable to load token from config", e);
             }
         }
 
@@ -96,7 +97,7 @@ public class BungeeGuardProxyPlugin extends Plugin implements Listener {
             try {
                 provider.save(configuration, file);
             } catch (Exception e) {
-                e.printStackTrace();
+                getLogger().log(Level.SEVERE, "Unable to save token in the config", e);
             }
         }
 

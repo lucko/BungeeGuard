@@ -27,16 +27,16 @@ package me.lucko.bungeeguard.spigot.listener;
 
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 
+import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
-import me.lucko.bungeeguard.spigot.TokenStore;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 /**
  * A handshake listener using Paper's {@link PlayerHandshakeEvent}.
@@ -53,8 +53,9 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
         }
         getOriginalSocketAddressHostname = method;
     }
-    public PaperHandshakeListener(TokenStore tokenStore, Logger logger, ConfigurationSection config) {
-        super(tokenStore, logger, config);
+
+    public PaperHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+        super(plugin, tokenStore);
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -71,7 +72,8 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
                     ex.printStackTrace();
                 }
             }
-            this.logger.warning("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
+
+            this.plugin.logWarn("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
 
             if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
                 e.setFailMessage(this.noDataKickMessage);

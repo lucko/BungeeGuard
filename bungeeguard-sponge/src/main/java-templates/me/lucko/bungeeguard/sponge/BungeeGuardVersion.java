@@ -23,40 +23,10 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.spigot;
+package me.lucko.bungeeguard.sponge;
 
-import java.util.HashSet;
-import java.util.Set;
+public final class BungeeGuardVersion {
 
-/**
- * A store of allowed tokens.
- */
-public class TokenStore {
-    private final BungeeGuardBackendPlugin plugin;
-    private Set<String> allowedTokens;
-
-    public TokenStore(BungeeGuardBackendPlugin plugin) {
-        this.plugin = plugin;
-        load();
-    }
-
-    public void reload() {
-        this.plugin.reloadConfig();
-        load();
-    }
-
-    private void load() {
-        this.allowedTokens = new HashSet<>(this.plugin.getConfig().getStringList("allowed-tokens"));
-    }
-
-    /**
-     * Gets if a token is allowed.
-     *
-     * @param token the token
-     * @return true if allowed
-     */
-    public boolean isAllowed(String token) {
-        return this.allowedTokens.contains(token);
-    }
+    public static final String VERSION = "${project.version}";
 
 }
