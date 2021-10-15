@@ -60,7 +60,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BackendPlugi
             PaperHandshakeListener listener = new PaperHandshakeListener(this, this.tokenStore);
             getServer().getPluginManager().registerEvents(listener, this);
 
-        } else if (isProtocolLib()) {
+        } else if (hasProtocolLib()) {
             getLogger().info("Using ProtocolLib to listen for connections.");
 
             ProtocolHandshakeListener listener = new ProtocolHandshakeListener(this, this.tokenStore);
@@ -109,11 +109,6 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BackendPlugi
         return getConfig().getStringList("allowed-tokens");
     }
 
-    @Override
-    public void logWarn(String message) {
-        getLogger().warning(message);
-    }
-
     private static boolean isPaperHandshakeEvent() {
         return classExists("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
     }
@@ -122,7 +117,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BackendPlugi
         return classExists("com.destroystokyo.paper.PaperConfig");
     }
 
-    private boolean isProtocolLib() {
+    private boolean hasProtocolLib() {
         return getServer().getPluginManager().getPlugin("ProtocolLib") != null;
     }
 

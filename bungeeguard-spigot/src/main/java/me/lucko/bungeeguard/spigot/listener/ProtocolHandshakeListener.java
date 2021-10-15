@@ -46,6 +46,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.net.InetSocketAddress;
+import java.util.logging.Level;
 
 /**
  * A handshake listener using ProtocolLib.
@@ -80,7 +81,8 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
 
             if (decoded instanceof BungeeCordHandshake.Fail) {
                 String ip = "null";
-                InetSocketAddress address = event.getPlayer().getAddress();
+                Player player = event.getPlayer();
+                InetSocketAddress address = player.getAddress();
                 if (address != null) {
                     ip = address.getHostString();
                     if (ip.length() > 15) {
@@ -88,7 +90,7 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
                     }
                 }
                 BungeeCordHandshake.Fail fail = (BungeeCordHandshake.Fail) decoded;
-                ProtocolHandshakeListener.this.plugin.logWarn("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
+                this.plugin.getLogger().warning("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
 
                 String kickMessage;
                 if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
@@ -98,9 +100,9 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
                 }
 
                 try {
-                    closeConnection(event.getPlayer(), kickMessage);
+                    closeConnection(player, kickMessage);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    this.plugin.getLogger().log(Level.SEVERE, "An error occurred while closing connection for " + player, e);
                 }
 
                 // just in-case the connection didn't close, screw up the hostname

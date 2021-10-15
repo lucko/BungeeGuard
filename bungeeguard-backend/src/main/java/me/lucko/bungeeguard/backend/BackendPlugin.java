@@ -8,7 +8,5 @@ public interface BackendPlugin {
 
     List<String> getTokens();
 
-    void logWarn(String message);
-
     void reloadConfig();
 }

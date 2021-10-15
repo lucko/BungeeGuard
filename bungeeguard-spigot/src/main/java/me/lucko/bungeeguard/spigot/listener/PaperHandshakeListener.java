@@ -27,16 +27,18 @@ package me.lucko.bungeeguard.spigot.listener;
 
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
 
+import me.lucko.bungeeguard.spigot.BungeeGuardBackendPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A handshake listener using Paper's {@link PlayerHandshakeEvent}.
@@ -54,8 +56,11 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
         getOriginalSocketAddressHostname = method;
     }
 
-    public PaperHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+    private final Logger logger;
+
+    public PaperHandshakeListener(BungeeGuardBackendPlugin plugin, TokenStore tokenStore) {
         super(plugin, tokenStore);
+        this.logger = plugin.getLogger();
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -69,11 +74,11 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
                 try {
                     ip = getOriginalSocketAddressHostname.invoke(e) + " - ";
                 } catch (ReflectiveOperationException ex) {
-                    ex.printStackTrace();
+                    this.logger.log(Level.SEVERE, "Unable to get original address", ex);
                 }
             }
 
-            this.plugin.logWarn("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
+            this.logger.warning("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
 
             if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
                 e.setFailMessage(this.noDataKickMessage);
