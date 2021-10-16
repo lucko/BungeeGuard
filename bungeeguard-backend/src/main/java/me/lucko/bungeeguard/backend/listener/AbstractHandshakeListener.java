@@ -25,20 +25,20 @@
 
 package me.lucko.bungeeguard.backend.listener;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 
 /**
  * An abstract handshake listener.
  */
 public abstract class AbstractHandshakeListener {
-    protected final BackendPlugin plugin;
+    protected final BungeeGuardBackend plugin;
     protected final TokenStore tokenStore;
 
     protected final String noDataKickMessage;
     protected final String invalidTokenKickMessage;
 
-    protected AbstractHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+    protected AbstractHandshakeListener(BungeeGuardBackend plugin, TokenStore tokenStore) {
         this.plugin = plugin;
         this.tokenStore = tokenStore;
         this.noDataKickMessage = plugin.getMessage("no-data-kick-message");

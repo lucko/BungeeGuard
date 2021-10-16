@@ -28,7 +28,7 @@ package me.lucko.bungeeguard.sponge;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 
 import ninja.leaping.configurate.ConfigurationNode;
@@ -65,7 +65,7 @@ import java.util.List;
         description = "Plugin which adds a security token to the BungeeCord handshaking protocol",
         authors = "Luck"
 )
-public final class BungeeGuardSponge implements BackendPlugin, CommandExecutor {
+public final class BungeeGuardSponge implements BungeeGuardBackend, CommandExecutor {
 
     private final Logger logger;
     private final Path configPath;

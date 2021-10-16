@@ -25,7 +25,7 @@
 
 package me.lucko.bungeeguard.sponge;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 
@@ -34,6 +34,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.profile.property.ProfileProperty;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Collection;
@@ -41,11 +42,15 @@ import java.util.Iterator;
 
 public class HandshakeListener extends AbstractHandshakeListener {
 
+    private final Text noDataKickText;
+    private final Text invalidTokenKickText;
     private final Logger logger;
 
-    public HandshakeListener(BackendPlugin plugin, TokenStore tokenStore, Logger logger) {
+    public HandshakeListener(BungeeGuardBackend plugin, TokenStore tokenStore, Logger logger) {
         super(plugin, tokenStore);
         this.logger = logger;
+        this.noDataKickText = TextSerializers.FORMATTING_CODE.deserialize(this.noDataKickMessage);
+        this.invalidTokenKickText = TextSerializers.FORMATTING_CODE.deserialize(this.invalidTokenKickMessage);
     }
 
     @Listener
@@ -66,7 +71,7 @@ public class HandshakeListener extends AbstractHandshakeListener {
 
             this.logger.warn("Denying connection from " + connectionDescription + " - reason: " + reason);
 
-            e.setMessage(TextSerializers.FORMATTING_CODE.deserialize(this.invalidTokenKickMessage));
+            e.setMessage(bungeeGuardToken == null ? this.noDataKickText : this.invalidTokenKickText);
             e.setCancelled(true);
             e.setMessageCancelled(false);
         }

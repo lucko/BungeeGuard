@@ -34,7 +34,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
@@ -53,7 +53,7 @@ import java.util.logging.Level;
  */
 public class ProtocolHandshakeListener extends AbstractHandshakeListener {
 
-    public ProtocolHandshakeListener(BackendPlugin plugin, TokenStore tokenStore) {
+    public ProtocolHandshakeListener(BungeeGuardBackend plugin, TokenStore tokenStore) {
         super(plugin, tokenStore);
     }
 

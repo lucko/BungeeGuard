@@ -25,7 +25,7 @@
 
 package me.lucko.bungeeguard.spigot;
 
-import me.lucko.bungeeguard.backend.BackendPlugin;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.spigot.listener.PaperHandshakeListener;
 import me.lucko.bungeeguard.spigot.listener.ProtocolHandshakeListener;
@@ -44,7 +44,7 @@ import java.util.List;
  *
  * The token is included within the player's profile properties, but removed during the handshake.
  */
-public class BungeeGuardBackendPlugin extends JavaPlugin implements BackendPlugin {
+public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardBackend {
 
     private TokenStore tokenStore;
 

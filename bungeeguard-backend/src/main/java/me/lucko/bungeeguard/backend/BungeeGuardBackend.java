@@ -2,7 +2,7 @@ package me.lucko.bungeeguard.backend;
 
 import java.util.List;
 
-public interface BackendPlugin {
+public interface BungeeGuardBackend {
 
     String getMessage(String key);
 
