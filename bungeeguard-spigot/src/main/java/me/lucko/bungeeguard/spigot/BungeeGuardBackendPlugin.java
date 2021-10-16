@@ -25,6 +25,8 @@
 
 package me.lucko.bungeeguard.spigot;
 
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
+import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.spigot.listener.PaperHandshakeListener;
 import me.lucko.bungeeguard.spigot.listener.ProtocolHandshakeListener;
 
@@ -34,13 +36,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+
 /**
  * Simple plugin which overrides the BungeeCord handshake protocol, and cancels all
  * connections which don't contain a special auth token set by the proxy.
  *
  * The token is included within the player's profile properties, but removed during the handshake.
  */
-public class BungeeGuardBackendPlugin extends JavaPlugin {
+public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardBackend {
 
     private TokenStore tokenStore;
 
@@ -48,17 +52,18 @@ public class BungeeGuardBackendPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         this.tokenStore = new TokenStore(this);
+        this.tokenStore.load();
 
         if (isPaperHandshakeEvent()) {
             getLogger().info("Using Paper's PlayerHandshakeEvent to listen for connections.");
 
-            PaperHandshakeListener listener = new PaperHandshakeListener(this.tokenStore, getLogger(), getConfig());
+            PaperHandshakeListener listener = new PaperHandshakeListener(this, this.tokenStore);
             getServer().getPluginManager().registerEvents(listener, this);
 
-        } else if (isProtocolLib()) {
+        } else if (hasProtocolLib()) {
             getLogger().info("Using ProtocolLib to listen for connections.");
 
-            ProtocolHandshakeListener listener = new ProtocolHandshakeListener(this.tokenStore, getLogger(), getConfig());
+            ProtocolHandshakeListener listener = new ProtocolHandshakeListener(this, this.tokenStore);
             listener.registerAdapter(this);
 
         } else {
@@ -94,6 +99,16 @@ public class BungeeGuardBackendPlugin extends JavaPlugin {
         return true;
     }
 
+    @Override
+    public String getMessage(String key) {
+        return ChatColor.translateAlternateColorCodes('&', getConfig().getString(key));
+    }
+
+    @Override
+    public List<String> getTokens() {
+        return getConfig().getStringList("allowed-tokens");
+    }
+
     private static boolean isPaperHandshakeEvent() {
         return classExists("com.destroystokyo.paper.event.player.PlayerHandshakeEvent");
     }
@@ -102,7 +117,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin {
         return classExists("com.destroystokyo.paper.PaperConfig");
     }
 
-    private boolean isProtocolLib() {
+    private boolean hasProtocolLib() {
         return getServer().getPluginManager().getPlugin("ProtocolLib") != null;
     }
 

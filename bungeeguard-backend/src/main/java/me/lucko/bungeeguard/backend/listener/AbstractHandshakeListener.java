@@ -23,40 +23,25 @@
  *  SOFTWARE.
  */
 
-package me.lucko.bungeeguard.spigot;
+package me.lucko.bungeeguard.backend.listener;
 
-import java.util.HashSet;
-import java.util.Set;
+import me.lucko.bungeeguard.backend.BungeeGuardBackend;
+import me.lucko.bungeeguard.backend.TokenStore;
 
 /**
- * A store of allowed tokens.
+ * An abstract handshake listener.
  */
-public class TokenStore {
-    private final BungeeGuardBackendPlugin plugin;
-    private Set<String> allowedTokens;
+public abstract class AbstractHandshakeListener {
+    protected final BungeeGuardBackend plugin;
+    protected final TokenStore tokenStore;
 
-    public TokenStore(BungeeGuardBackendPlugin plugin) {
+    protected final String noDataKickMessage;
+    protected final String invalidTokenKickMessage;
+
+    protected AbstractHandshakeListener(BungeeGuardBackend plugin, TokenStore tokenStore) {
         this.plugin = plugin;
-        load();
+        this.tokenStore = tokenStore;
+        this.noDataKickMessage = plugin.getMessage("no-data-kick-message");
+        this.invalidTokenKickMessage = plugin.getMessage("invalid-token-kick-message");
     }
-
-    public void reload() {
-        this.plugin.reloadConfig();
-        load();
-    }
-
-    private void load() {
-        this.allowedTokens = new HashSet<>(this.plugin.getConfig().getStringList("allowed-tokens"));
-    }
-
-    /**
-     * Gets if a token is allowed.
-     *
-     * @param token the token
-     * @return true if allowed
-     */
-    public boolean isAllowed(String token) {
-        return this.allowedTokens.contains(token);
-    }
-
 }

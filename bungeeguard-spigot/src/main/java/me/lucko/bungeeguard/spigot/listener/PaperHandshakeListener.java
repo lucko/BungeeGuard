@@ -27,15 +27,17 @@ package me.lucko.bungeeguard.spigot.listener;
 
 import com.destroystokyo.paper.event.player.PlayerHandshakeEvent;
 
+import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
-import me.lucko.bungeeguard.spigot.TokenStore;
 
-import org.bukkit.configuration.ConfigurationSection;
+import me.lucko.bungeeguard.spigot.BungeeGuardBackendPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -53,8 +55,12 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
         }
         getOriginalSocketAddressHostname = method;
     }
-    public PaperHandshakeListener(TokenStore tokenStore, Logger logger, ConfigurationSection config) {
-        super(tokenStore, logger, config);
+
+    private final Logger logger;
+
+    public PaperHandshakeListener(BungeeGuardBackendPlugin plugin, TokenStore tokenStore) {
+        super(plugin, tokenStore);
+        this.logger = plugin.getLogger();
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -68,9 +74,10 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
                 try {
                     ip = getOriginalSocketAddressHostname.invoke(e) + " - ";
                 } catch (ReflectiveOperationException ex) {
-                    ex.printStackTrace();
+                    this.logger.log(Level.SEVERE, "Unable to get original address", ex);
                 }
             }
+
             this.logger.warning("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
 
             if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {

@@ -30,7 +30,6 @@ import net.md_5.bungee.connection.LoginResult;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
