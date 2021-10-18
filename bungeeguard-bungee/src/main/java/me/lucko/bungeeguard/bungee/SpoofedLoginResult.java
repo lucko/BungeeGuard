@@ -25,6 +25,7 @@
 
 package me.lucko.bungeeguard.bungee;
 
+import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.connection.LoginResult;
 
@@ -50,10 +51,8 @@ abstract class SpoofedLoginResult extends LoginResult {
             // try to use stackwalker if running Java 9 or newer
             Class.forName("java.lang.StackWalker");
             implClass = Class.forName("me.lucko.bungeeguard.bungee.SpoofedLoginResultJava9").asSubclass(SpoofedLoginResult.class);
-            //System.out.println("[BungeeGuard] Using Java 9 (StackWalker) to spoof profile properties.");
         } catch (ClassNotFoundException e) {
             implClass = SpoofedLoginResultJava8.class;
-            //System.out.println("[BungeeGuard] Using Java 8 (Reflection/Stacktrace) to spoof profile properties.");
         }
 
         try {
@@ -89,33 +88,42 @@ abstract class SpoofedLoginResult extends LoginResult {
         }
     }
 
-    private final String extraToken;
-    private final Property[] justExtraToken;
+    private final Property bungeeGuardToken;
+    private final Property[] bungeeGuardTokenArray;
     private final boolean offline;
 
     // online mode constructor
-    protected SpoofedLoginResult(LoginResult oldProfile, String extraToken) {
+    protected SpoofedLoginResult(LoginResult oldProfile, String bungeeGuardToken) {
         super(oldProfile.getId(), oldProfile.getName(), oldProfile.getProperties());
-        this.extraToken = extraToken;
-        this.justExtraToken = new Property[]{new Property("bungeeguard-token", this.extraToken, "")};
+        this.bungeeGuardToken = new Property("bungeeguard-token", bungeeGuardToken, "");
+        this.bungeeGuardTokenArray = new Property[]{this.bungeeGuardToken};
         this.offline = false;
     }
 
     // offline mode constructor
-    protected SpoofedLoginResult(String extraToken) {
+    protected SpoofedLoginResult(String bungeeGuardToken) {
         super(null, null, new Property[0]);
-        this.extraToken = extraToken;
-        this.justExtraToken = new Property[]{new Property("bungeeguard-token", this.extraToken, "")};
+        this.bungeeGuardToken = new Property("bungeeguard-token", bungeeGuardToken, "");
+        this.bungeeGuardTokenArray = new Property[]{this.bungeeGuardToken};
         this.offline = true;
     }
 
-    protected Property[] addTokenProperty(Property[] properties) {
+    protected Property[] getSpoofedProperties(Class<?> caller) {
+        // if the getProperties method is being called by the server connector, include our token in the properties
+        if (caller == ServerConnector.class) {
+            return addTokenProperty(super.getProperties());
+        } else {
+            return super.getProperties();
+        }
+    }
+
+    private Property[] addTokenProperty(Property[] properties) {
         if (properties.length == 0) {
-            return this.justExtraToken;
+            return this.bungeeGuardTokenArray;
         }
 
         Property[] newProperties = Arrays.copyOf(properties, properties.length + 1);
-        newProperties[properties.length] = new Property("bungeeguard-token", this.extraToken, "");
+        newProperties[properties.length] = this.bungeeGuardToken;
         return newProperties;
     }
 

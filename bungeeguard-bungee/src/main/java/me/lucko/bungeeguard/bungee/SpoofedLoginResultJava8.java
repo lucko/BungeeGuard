@@ -27,36 +27,23 @@ package me.lucko.bungeeguard.bungee;
 
 import net.md_5.bungee.connection.LoginResult;
 
+import jdk.internal.reflect.Reflection;
+
 public class SpoofedLoginResultJava8 extends SpoofedLoginResult {
-    private static final String SERVER_CONNECTOR = "net.md_5.bungee.ServerConnector";
-    private static final String SERVER_CONNECTOR_CONNECTED = "connected";
 
     // online mode constructor
-    public SpoofedLoginResultJava8(LoginResult oldProfile, String extraToken) {
-        super(oldProfile, extraToken);
+    public SpoofedLoginResultJava8(LoginResult oldProfile, String bungeeGuardToken) {
+        super(oldProfile, bungeeGuardToken);
     }
 
     // offline mode constructor
-    public SpoofedLoginResultJava8(String extraToken) {
-        super(extraToken);
+    public SpoofedLoginResultJava8(String bungeeGuardToken) {
+        super(bungeeGuardToken);
     }
 
     @Override
     public Property[] getProperties() {
-        // there's no way this is the best way to do this, but idfk
-        StackTraceElement[] trace = new Exception().getStackTrace();
-
-        if (trace.length < 2) {
-            return super.getProperties();
-        }
-
-        StackTraceElement callLocation = trace[1];
-
-        // if the getProperties method is being called by the server connector, include our token in the properties
-        if (callLocation.getClassName().equals(SERVER_CONNECTOR) && callLocation.getMethodName().equals(SERVER_CONNECTOR_CONNECTED)) {
-            return addTokenProperty(super.getProperties());
-        } else {
-            return super.getProperties();
-        }
+        Class<?> caller = Reflection.getCallerClass();
+        return getSpoofedProperties(caller);
     }
 }
