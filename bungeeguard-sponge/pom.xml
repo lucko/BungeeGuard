@@ -14,6 +14,15 @@
 
     <build>
         <finalName>BungeeGuard-Sponge</finalName>
+        <resources>
+            <resource>
+                <directory>../</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -60,7 +69,7 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>7.1.0</version>
+            <version>7.3.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
