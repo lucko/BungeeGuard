@@ -26,6 +26,7 @@
 package me.lucko.bungeeguard.bungee;
 
 import net.md_5.bungee.connection.LoginResult;
+import net.md_5.bungee.protocol.Property;
 
 public class SpoofedLoginResultJava9 extends SpoofedLoginResult {
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
