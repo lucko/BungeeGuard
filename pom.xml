@@ -26,7 +26,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <paper.version>1.15.2-R0.1-SNAPSHOT</paper.version>
-        <bungee.version>1.15-SNAPSHOT</bungee.version>
+        <bungee.version>1.19-R0.1-SNAPSHOT</bungee.version>
     </properties>
 
     <repositories>
