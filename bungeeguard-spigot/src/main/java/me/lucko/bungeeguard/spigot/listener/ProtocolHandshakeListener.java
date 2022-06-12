@@ -31,7 +31,8 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.injector.server.TemporaryPlayerFactory;
+import com.comphenix.protocol.injector.temporary.MinimalInjector;
+import com.comphenix.protocol.injector.temporary.TemporaryPlayerFactory;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import me.lucko.bungeeguard.backend.BungeeGuardBackend;
@@ -120,14 +121,18 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
     }
 
     private static void closeConnection(Player player, String kickMessage) throws Exception {
+        WrappedChatComponent component = WrappedChatComponent.fromJson(ComponentSerializer.toString(TextComponent.fromLegacyText(kickMessage)));
+
         PacketContainer packet = new PacketContainer(PacketType.Login.Server.DISCONNECT);
         packet.getModifier().writeDefaults();
-
-        WrappedChatComponent component = WrappedChatComponent.fromJson(ComponentSerializer.toString(TextComponent.fromLegacyText(kickMessage)));
         packet.getChatComponents().write(0, component);
 
+        // send custom disconnect message to client
         ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-        TemporaryPlayerFactory.getInjectorFromPlayer(player).getSocket().close();
+
+        // call PlayerConnection#disconnect to ensure the underlying socket is closed
+        MinimalInjector injector = TemporaryPlayerFactory.getInjectorFromPlayer(player);
+        injector.disconnect("");
     }
 
 }
