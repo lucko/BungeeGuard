@@ -48,12 +48,17 @@ abstract class SpoofedLoginResult extends LoginResult {
 
     static {
         Class<? extends SpoofedLoginResult> implClass;
-        try {
-            // try to use stackwalker if running Java 9 or newer
-            Class.forName("java.lang.StackWalker");
-            implClass = Class.forName("me.lucko.bungeeguard.bungee.SpoofedLoginResultJava9").asSubclass(SpoofedLoginResult.class);
-        } catch (ClassNotFoundException e) {
-            implClass = SpoofedLoginResultJava8.class;
+        if (classExists("java.lang.StackWalker")) {
+            try {
+                implClass = Class.forName("me.lucko.bungeeguard.bungee.SpoofedLoginResultJava9")
+                        .asSubclass(SpoofedLoginResult.class);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (classExists("jdk.internal.reflect.Reflection")) {
+            implClass = SpoofedLoginResultJdkInternal.class;
+        } else {
+            implClass = SpoofedLoginResultReflection.class;
         }
 
         try {
@@ -86,6 +91,15 @@ abstract class SpoofedLoginResult extends LoginResult {
             PROFILE_FIELD.set(handler, newProfile);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static boolean classExists(String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 
