@@ -75,6 +75,10 @@ public class BungeeCordHandshake {
     }
 
     private static BungeeCordHandshake decodeAndVerify0(String handshake, TokenStore tokenStore) throws Exception {
+        if (tokenStore.isUsingDefaultConfig()) {
+            return new Fail(Fail.Reason.INCORRECT_TOKEN, "Allowed tokens have not been configured! Please refer to https://github.com/lucko/BungeeGuard/blob/master/INSTALLATION.md for help.");
+        }
+
         if (handshake.length() > HANDSHAKE_LENGTH_LIMIT) {
             return new Fail(Fail.Reason.INVALID_HANDSHAKE, "handshake length " + handshake.length() + " is > " + HANDSHAKE_LENGTH_LIMIT);
         }
