@@ -39,8 +39,8 @@ import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
-
 import me.lucko.bungeeguard.spigot.LegacyProtocolKick;
+
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -70,9 +70,9 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
             super(plugin, ListenerPriority.LOWEST, PacketType.Handshake.Client.SET_PROTOCOL);
             try {
                 Class.forName("com.comphenix.protocol.injector.temporary.MinimalInjector");
-                plugin.getLogger().info("Using newer ProtocolLib support.");
+                plugin.getLogger().info("Using modern (v5) ProtocolLib adapter.");
             } catch (ClassNotFoundException e) {
-                plugin.getLogger().info("Using legacy ProtocolLib support.");
+                plugin.getLogger().info("Using legacy (v4) ProtocolLib adapter.");
                 isLegacyProtocolLib = true;
             }
         }
