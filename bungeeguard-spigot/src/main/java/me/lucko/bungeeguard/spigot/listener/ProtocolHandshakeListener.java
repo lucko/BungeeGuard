@@ -40,6 +40,7 @@ import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.backend.listener.AbstractHandshakeListener;
 import me.lucko.bungeeguard.spigot.BungeeCordHandshake;
 
+import me.lucko.bungeeguard.spigot.LegacyProtocolKick;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 
@@ -53,6 +54,7 @@ import java.util.logging.Level;
  * A handshake listener using ProtocolLib.
  */
 public class ProtocolHandshakeListener extends AbstractHandshakeListener {
+    static boolean isLegacyProtocolLib = false; // Before 5.x series.
 
     public ProtocolHandshakeListener(BungeeGuardBackend plugin, TokenStore tokenStore) {
         super(plugin, tokenStore);
@@ -63,8 +65,16 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
     }
 
     private final class Adapter extends PacketAdapter {
+
         Adapter(Plugin plugin) {
             super(plugin, ListenerPriority.LOWEST, PacketType.Handshake.Client.SET_PROTOCOL);
+            try {
+                Class.forName("com.comphenix.protocol.injector.temporary.MinimalInjector");
+                plugin.getLogger().info("Using newer ProtocolLib support.");
+            } catch (ClassNotFoundException e) {
+                plugin.getLogger().info("Using legacy ProtocolLib support.");
+                isLegacyProtocolLib = true;
+            }
         }
 
         @Override
@@ -130,9 +140,13 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
         // send custom disconnect message to client
         ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
 
-        // call PlayerConnection#disconnect to ensure the underlying socket is closed
-        MinimalInjector injector = TemporaryPlayerFactory.getInjectorFromPlayer(player);
-        injector.disconnect("");
+        if (isLegacyProtocolLib) {
+            LegacyProtocolKick.kick(player);
+        } else {
+            // call PlayerConnection#disconnect to ensure the underlying socket is closed
+            MinimalInjector injector = TemporaryPlayerFactory.getInjectorFromPlayer(player);
+            injector.disconnect("");
+        }
     }
 
 }
