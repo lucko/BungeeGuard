@@ -78,7 +78,7 @@ public class PaperHandshakeListener extends AbstractHandshakeListener implements
                 }
             }
 
-            this.logger.warning("Denying connection from " + ip + fail.describeConnection() + " - reason: " + fail.reason().name());
+            this.logger.warning("Denying connection from " + ip + " - reason: " + fail.reason().name());
 
             if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
                 e.setFailMessage(this.noDataKickMessage);
