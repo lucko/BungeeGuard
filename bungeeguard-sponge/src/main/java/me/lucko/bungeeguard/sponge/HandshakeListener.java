@@ -69,7 +69,7 @@ public class HandshakeListener extends AbstractHandshakeListener {
             String connectionDescription = profile.getUniqueId() + " @ " + e.getConnection().getAddress().getHostString();
             String reason = bungeeGuardToken == null ? "No Token" : "Invalid token";
 
-            this.logger.warn("Denying connection from " + connectionDescription + " - reason: " + reason);
+            this.logger.warn("Denying connection from " + e.getConnection().getAddress() + " - reason: " + reason);
 
             e.setMessage(bungeeGuardToken == null ? this.noDataKickText : this.invalidTokenKickText);
             e.setCancelled(true);

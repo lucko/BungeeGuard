@@ -101,7 +101,7 @@ public class ProtocolHandshakeListener extends AbstractHandshakeListener {
                     }
                 }
                 BungeeCordHandshake.Fail fail = (BungeeCordHandshake.Fail) decoded;
-                this.plugin.getLogger().warning("Denying connection from " + ip + " - " + fail.describeConnection() + " - reason: " + fail.reason().name());
+                this.plugin.getLogger().warning("Denying connection from " + ip + " - " + " - reason: " + fail.reason().name());
 
                 String kickMessage;
                 if (fail.reason() == BungeeCordHandshake.Fail.Reason.INVALID_HANDSHAKE) {
