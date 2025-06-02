@@ -25,10 +25,11 @@
 
 package me.lucko.bungeeguard.spigot;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
+import me.lucko.bungeeguard.spigot.listener.PacketEventsHandshakeListener;
 import me.lucko.bungeeguard.spigot.listener.PaperHandshakeListener;
-import me.lucko.bungeeguard.spigot.listener.ProtocolHandshakeListener;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -46,10 +47,19 @@ import java.util.List;
  */
 public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardBackend {
 
+    private static BungeeGuardBackendPlugin instance;
+
     private TokenStore tokenStore;
 
     @Override
+    public void onLoad() {
+        PacketEvents.getAPI().load();
+    }
+
+    @Override
     public void onEnable() {
+        instance = this;
+
         saveDefaultConfig();
         this.tokenStore = new TokenStore(this);
         this.tokenStore.load();
@@ -71,11 +81,13 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
             PaperHandshakeListener listener = new PaperHandshakeListener(this, this.tokenStore);
             getServer().getPluginManager().registerEvents(listener, this);
 
-        } else if (hasProtocolLib()) {
-            getLogger().info("Using ProtocolLib to listen for connections.");
+        } else if (hasPacketEvents()) {
+            getLogger().info("Using PacketEvents to listen for connections.");
 
-            ProtocolHandshakeListener listener = new ProtocolHandshakeListener(this, this.tokenStore);
-            listener.registerAdapter(this);
+            PacketEvents.getAPI().init();
+
+            PacketEventsHandshakeListener listener = new PacketEventsHandshakeListener(this, this.tokenStore);
+            listener.registerListener();
 
         } else {
             getLogger().severe("------------------------------------------------------------");
@@ -90,6 +102,10 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
             getLogger().severe("------------------------------------------------------------");
             getServer().shutdown();
         }
+    }
+
+    public static BungeeGuardBackendPlugin getInstance() {
+        return instance;
     }
 
     @Override
@@ -111,6 +127,11 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
     }
 
     @Override
+    public void onDisable() {
+        PacketEvents.getAPI().terminate();
+    }
+
+    @Override
     public String getMessage(String key) {
         return ChatColor.translateAlternateColorCodes('&', getConfig().getString(key));
     }
@@ -128,8 +149,8 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
         return classExists("com.destroystokyo.paper.PaperConfig");
     }
 
-    private boolean hasProtocolLib() {
-        return getServer().getPluginManager().getPlugin("ProtocolLib") != null;
+    private boolean hasPacketEvents() {
+        return getServer().getPluginManager().getPlugin("packetevents") != null;
     }
 
     private static boolean classExists(String className) {
