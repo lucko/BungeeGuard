@@ -29,13 +29,14 @@ import me.lucko.bungeeguard.backend.BungeeGuardBackend;
 import me.lucko.bungeeguard.backend.TokenStore;
 import me.lucko.bungeeguard.spigot.listener.PaperHandshakeListener;
 import me.lucko.bungeeguard.spigot.listener.ProtocolHandshakeListener;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
         this.tokenStore = new TokenStore(this);
         this.tokenStore.load();
 
-        if (!getServer().spigot().getConfig().getBoolean("settings.bungeecord", false)) {
+        if (!isBungeeCordEnabled()) {
             getLogger().severe("------------------------------------------------------------");
             getLogger().severe("'settings.bungeecord' is set to false in spigot.yml.");
             getLogger().severe("");
@@ -90,6 +91,12 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
             getLogger().severe("------------------------------------------------------------");
             getServer().shutdown();
         }
+    }
+
+    private boolean isBungeeCordEnabled() {
+        File spigotConfigFile = new File("spigot.yml");
+        YamlConfiguration spigotConfig = YamlConfiguration.loadConfiguration(spigotConfigFile);
+        return spigotConfig.getBoolean("settings.bungeecord", false);
     }
 
     @Override
