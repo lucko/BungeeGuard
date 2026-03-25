@@ -25,6 +25,10 @@
 
 package me.lucko.bungeeguard.backend;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,7 +50,28 @@ public class TokenStore {
     }
 
     public void load() {
-        this.allowedTokens = new HashSet<>(this.plugin.getTokens());
+        Set<String> tokens = new HashSet<>();
+        for (String token : this.plugin.getTokens()) {
+            if (token.startsWith("@") && token.length() > 1) {
+                Path path = this.plugin.getDataDirectory().resolve(token.substring(1));
+                if (Files.exists(path)) {
+                    try {
+                        for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                            line = line.trim();
+                            if (!line.isEmpty()) {
+                                tokens.add(line);
+                            }
+                        }
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            } else {
+                tokens.add(token);
+            }
+        }
+
+        this.allowedTokens = tokens;
     }
 
     /**

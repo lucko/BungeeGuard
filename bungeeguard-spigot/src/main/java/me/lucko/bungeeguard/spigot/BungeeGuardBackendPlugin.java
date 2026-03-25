@@ -37,6 +37,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -125,6 +126,11 @@ public class BungeeGuardBackendPlugin extends JavaPlugin implements BungeeGuardB
     @Override
     public List<String> getTokens() {
         return getConfig().getStringList("allowed-tokens");
+    }
+
+    @Override
+    public Path getDataDirectory() {
+        return super.getDataFolder().toPath();
     }
 
     private static boolean isPaperHandshakeEvent() {
