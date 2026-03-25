@@ -152,6 +152,11 @@ public final class BungeeGuardSponge implements BungeeGuardBackend, CommandExecu
     }
 
     @Override
+    public Path getDataDirectory() {
+        return this.configPath.getParent();
+    }
+
+    @Override
     public void reloadConfig() {
         try {
             HoconConfigurationLoader loader = HoconConfigurationLoader.builder().setPath(this.configPath).build();
